@@ -215,7 +215,24 @@ knitr::include_graphics("mallorca_map.gif")
   5. In this exercise, you get to meet Lisa's sister, Heather! She is a proud Mac grad, currently works as a Data Scientist where she uses R everyday, and for a few years (while still holding a full-time job) she was a pro triathlete. You are going to map one of her races. The data from each discipline of the Ironman 70.3 Pan Am championships, Panama is in a separate file - `panama_swim`, `panama_bike`, and `panama_run`. Create a similar map to the one you created with my cycling data. You will need to make some small changes: 1. combine the files putting them in swim, bike, run order (HINT: `bind_rows()`), 2. make the leading dot a different color depending on the event (for an extra challenge, make it a different image using `geom_image()!), 3. CHALLENGE (optional): color by speed, which you will need to compute on your own from the data. You can read Heather's race report [here](https://heatherlendway.com/2016/02/10/ironman-70-3-pan-american-championships-panama-race-report/). She is also in the Macalester Athletics [Hall of Fame](https://athletics.macalester.edu/honors/hall-of-fame/heather-lendway/184) and still has records at the pool. 
   
 ```{r}
-
+panama_tri<-bind_rows(list(panama_swim,panama_bike,panama_run))
+panama_race<-get_stamenmap(
+  bbox=c(left=min(panama_tri$lon),bottom=min(panama_tri$lat),right=max(panama_tri$lon),top=max(panama_tri$lat)),
+  maptype = "terrain",
+  zoom=12)
+ggmap(panama_race)+
+   geom_path(data=panama_tri,
+            aes(x=lon,
+                y=lat,
+                color=event),
+            size=.5)+
+  geom_point(data=panama_tri,
+             aes(x=lon,y=lat,color=event),
+             size=2)+
+  theme_map()+
+  theme(legend.background = element_blank())+
+  transition_reveal(time)
+  
 ```
   
 ## COVID-19 data
