@@ -88,7 +88,7 @@ data_site <-
 Trips <- readRDS(gzcon(url(data_site)))
 Stations<-readr::read_csv("http://www.macalester.edu/~dshuman1/data/112/DC-Stations.csv")
 ```
-```{r}
+```{r,eval=FALSE}
 Trips_graph<-Trips %>% 
   group_by(sstation, client) %>% 
   summarise(sum_station=n()) %>% 
@@ -147,7 +147,7 @@ knitr::include_graphics("trains2.gif")
   * Use the data you just made to create a static cumulative harvest area plot, with the areas filled with different colors for each variety and arranged (HINT: `fct_reorder()`) from most to least harvested weights (most on the bottom).  
   * Add animation to reveal the plot over date. Instead of having a legend, place the variety names directly on the graph (refer back to the tutorial for how to do this).
 
-```{r}
+```{r,eval=FALSE}
 tomato_var<-garden_harvest %>% 
   filter(vegetable == "tomatoes") %>% 
   group_by(date, variety) %>% 
@@ -185,7 +185,7 @@ knitr::include_graphics("tomato_var.gif")
   * Show the time in the subtitle.  
   * CHALLENGE: use the `ggimage` package and `geom_image` to add a bike image instead of a red point. You can use [this](https://raw.githubusercontent.com/llendway/animation_and_interactivity/master/bike.png) image. See [here](https://goodekat.github.io/presentations/2019-isugg-gganimate-spooky/slides.html#35) for an example. 
   * Add something of your own! And comment on if you prefer this to the static map and why or why not.
-```{r}
+```{r,eval=FALSE}
 mallorca_map<-get_stamenmap(
   bbox=c(left=2.1629,bottom=39.2248,right=3.6598,top=40.0013),
   maptype = "terrain",
@@ -214,7 +214,7 @@ knitr::include_graphics("mallorca_map.gif")
   
   5. In this exercise, you get to meet Lisa's sister, Heather! She is a proud Mac grad, currently works as a Data Scientist where she uses R everyday, and for a few years (while still holding a full-time job) she was a pro triathlete. You are going to map one of her races. The data from each discipline of the Ironman 70.3 Pan Am championships, Panama is in a separate file - `panama_swim`, `panama_bike`, and `panama_run`. Create a similar map to the one you created with my cycling data. You will need to make some small changes: 1. combine the files putting them in swim, bike, run order (HINT: `bind_rows()`), 2. make the leading dot a different color depending on the event (for an extra challenge, make it a different image using `geom_image()!), 3. CHALLENGE (optional): color by speed, which you will need to compute on your own from the data. You can read Heather's race report [here](https://heatherlendway.com/2016/02/10/ironman-70-3-pan-american-championships-panama-race-report/). She is also in the Macalester Athletics [Hall of Fame](https://athletics.macalester.edu/honors/hall-of-fame/heather-lendway/184) and still has records at the pool. 
   
-```{r}
+```{r,eval=FALSE}
 panama_tri<-bind_rows(list(panama_swim,panama_bike,panama_run))
 panama_race<-get_stamenmap(
   bbox=c(left=min(panama_tri$lon),bottom=min(panama_tri$lat),right=max(panama_tri$lon),top=max(panama_tri$lat)),
@@ -229,12 +229,18 @@ ggmap(panama_race)+
   geom_point(data=panama_tri,
              aes(x=lon,y=lat,color=event),
              size=2)+
+  labs(title = "Heather's Races from the Ironman 70.3 Pan Am Championship",
+       subtitle = "",
+       color="")+
   theme_map()+
-  theme(legend.background = element_blank())+
-  transition_reveal(time)
+   theme(legend.background = element_blank())
+    transition_reveal(time)
+    anim_save("panama_race.gif")
   
 ```
-  
+```{r}
+knitr::include_graphics("panama_race.gif")
+```  
 ## COVID-19 data
 
   6. In this exercise you will animate a map of the US, showing how cumulative COVID-19 cases per 10,000 residents has changed over time. This is similar to exercises 11 & 12 from the previous exercises, with the added animation! So, in the end, you should have something like the static map you made there, but animated over all the days. The code below gives the population estimates for each state and loads the `states_map` data. Here is a list of details you should include in the plot:
@@ -245,18 +251,47 @@ ggmap(panama_race)+
   * Use `group = date` in `aes()`.   
   * Comment on what you see.  
 
-```{r}
+```{r,eval=FALSE}
 census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_census_2018_state_pop_est.csv?dl=1") %>% 
   separate(state, into = c("dot","state"), extra = "merge") %>% 
   select(-dot) %>% 
   mutate(state = str_to_lower(state))
 
+covid_over_10 <- covid19 %>% 
+  filter(day(date)==15) %>% 
+  mutate(state=str_to_lower(state)) %>% 
+   left_join(census_pop_est_2018,
+            by = "state") %>% 
+  mutate(cases_per_10000 = (cases/est_pop_2018)*10000)
+
 states_map <- map_data("state")
+
+covidanim<-covid_over_10 %>% 
+  ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state,
+               fill = cases,
+               group=date)) +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
+  theme_map()+
+  scale_fill_viridis_c()+
+  labs(subtitle="Date:{closest_state}",
+       title="Cumulative covid cases over time per 10000 residents")+
+ transition_states(date)
+
+covid_anim_final<-animate(covidanim,
+                          nframes=200,
+                          end_pause=10)
+anim_save("covidanim.gif",covid_anim_final)
+```
+```{r}
+knitr::include_graphics("covidanim.gif")
 ```
 
 ## Your first `shiny` app (for next week!)
 
   7. This app will also use the COVID data. Make sure you load that data and all the libraries you need in the `app.R` file you create. You should create a new project for the app, separate from the homework project. Below, you will post a link to the app that you publish on shinyapps.io. You will create an app to compare states' daily number of COVID cases per 100,000 over time. The x-axis will be date. You will have an input box where the user can choose which states to compare (`selectInput()`), a slider where the user can choose the date range, and a submit button to click once the user has chosen all states they're interested in comparing. The graph should display a different line for each state, with labels either on the graph or in a legend. Color can be used if needed. 
+
   
 Put the link to your app here: 
   
