@@ -5,6 +5,7 @@ library(tidyverse)
 census_pop_est_2018<-read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_census_2018_state_pop_est.csv?dl=1") %>% 
   separate(state, into=c("dot","state"), extra="merge") %>% 
   select(-dot)
+covid19 <- read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
 
 recentcovid<-covid19 %>% 
   mutate(state_name=str_to_lower(state)) %>% 
@@ -19,7 +20,7 @@ ui<-fluidPage(
               max=as.Date("2022-03-30"),
               value=c(as.Date("2020-01-21"),
                       as.Date("2022-03-30"))),
-  selectInput(inputId = "date",
+  selectInput(inputId = "state",
               label="Choose your state",
               choices=covid19 %>% 
                 arrange(state) %>% 

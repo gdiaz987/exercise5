@@ -1,0 +1,14 @@
+name: exercise5
+title: exercise5
+username:
+account: gdiaz987
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6020086
+bundleId: 5767354
+url: https://gdiaz987.shinyapps.io/exercise5/
+when: 1649179144.90651
+lastSyncTime: 1649179144.90654
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 05_exercises_new_files/figure-html/unnamed-chunk-10-1.gif|05_exercises_new_files/figure-html/unnamed-chunk-4-1.gif|05_exercises_new_files/figure-html/unnamed-chunk-6-1.gif|05_exercises_new_files/figure-html/unnamed-chunk-8-1.gif|05_exercises_new.html|05_exercises_new.md|05_exercises_new.Rmd|covidanim.gif|LICENSE|mallorca_map.gif|panama_race.gif|README.md|tomato_var.gif|trains2.gif

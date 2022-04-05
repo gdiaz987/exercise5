@@ -294,6 +294,8 @@ knitr::include_graphics("covidanim.gif")
 
   
 Put the link to your app here: 
+
+https://gdiaz987.shinyapps.io/exercise5/
   
 ## GitHub link
 
